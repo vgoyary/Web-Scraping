@@ -1,35 +1,49 @@
-# ScrapeMonster.tech - Big C Web Scraping Assignment
+# ScrapeMonster.tech - Big C Web Scraping Assignment  
 
-## 1. Approach
+## 1️. Approach Used  
+### Step-by-Step Process:  
+ **Fetching Categories & Subcategories:**  
+- Extracted product categories from Big C’s structured JSON API.  
+- Identified subcategories and recursively scraped them.  
 
-This scraper was built to extract product data from Big C Thailand's website. The approach used includes:
-- **Fetching Categories**: The script pulls category URLs from Big C’s JSON API.
-- **Extracting Product Listings**: Each category JSON response is parsed to get product details.
-- **Handling Missing Data**: If the JSON lacks details (e.g., brand, description, weight, delivery methods), Selenium is used to fetch them from the product page.
-- **Barcode Extraction**: The barcode is extracted from the image URL.
-- **Anti-Scraping Handling**: The script includes request headers to mimic a browser and delays between requests to avoid detection.
-- **Data Storage**: The scraped data is stored in a structured JSON file.
+ **Handling Pagination:**  
+- Implemented pagination to iterate through all pages of each category.  
+- Stopped pagination automatically when no more products were found.  
 
+ **Fetching Product Data:**  
+- Extracted **product name, price, barcode, brand, category, description, delivery methods, and promotions** using a combination of API and Selenium.  
+- Used **Selenium** to scrape missing details from the product page.  
+
+ **Handling Anti-Scraping Protections:**  
+- **Added random delays** between requests to prevent detection.  
+- **Implemented retry logic** for failed page loads.  
+- **Used a realistic User-Agent header** to mimic human browsing.  
+---
 ## 2. Total Product Count
 - Total products listed on the website: 
 - Total products successfully scraped: 390
+---
+## 3️. Duplicate Handling Logic  
+ **Prevents scraping the same product twice:**  
+- Uses **product URLs and SKUs** to check for duplicates.  
+- Ensures only new products are scraped on each run.  
 
-## 3. Duplicate Handling Logic
-- The script ensures that previously scraped products are not duplicated by using their **product URL** as a unique identifier.
-- If a product exists in the dataset but has updated details (e.g., price changes), the script overwrites the old data.
+ **Handling Updates to Existing Products:**  
+- If a product is already scraped, it updates **price, promotions, and availability** in the output JSON file.  
 
+---
 ## 4. Dependencies
-Required Libraries: Add them to **requirements.txt**
-- `requests`
-- `json`
-- `selenium`
-- `webdriver-manager`
-- `beautifulsoup4`
-- `pytesseract`
-- `Pillow`
-- `re`
-- `datetime`
-
+- Required Libraries: Add them to **requirements.txt**
+  - `requests`
+  - `json`
+  - `selenium`
+  - `webdriver-manager`
+  - `beautifulsoup4`
+  - `pytesseract`
+  - `Pillow`
+  - `re`
+  - `datetime`
+---
 ## 5. Run Instructions
 - Install the required dependencies (see above).
 - Ensure you have Google Chrome installed and ChromeDriver is up to date.
@@ -43,31 +57,39 @@ Required Libraries: Add them to **requirements.txt**
 
 ## 6. Challenges Faced & Solutions
 
-**1. SSL Module Not Found Issue**
-
-- **Problem**: The SSL module was missing in some environments, causing Selenium to fail.
-- **Solution**: A workaround was implemented using:
-    ```base
-    import ssl
-    ssl._create_default_https_context = ssl._create_unverified_context
-
-**2. Missing Data in JSON Response**
+**1. Missing Data in JSON Response**
 
 - **Problem**: The API response lacked certain details like brand, description, and weight.
 - **Solution**: Selenium was used to extract missing details directly from the product page.
 
-**3. Handling Rate Limits**
+**2. Handling Rate Limits**
 
 - **Problem**: Too many rapid requests could lead to temporary IP bans.
 - **Solution**: A request delay (`REQUEST_DELAY = 2s`) was added to slow down scraping.
 
-**4. Extracting Promotional Text from Images**
+**3. Extracting Promotional Text from Images**
 
 - **Problem**: Some promotional offers (e.g., "Save 17%") were only present in product images.
 - **Solution**: OCR (`pytesseract`) was used to scan images and extract promotional text.
 
-## 7. Sample Output
+**4.Slow Page Loading & Timeouts**
 
+- **Problem**: Some product pages took too long to load, causing Selenium timeouts.
+- **Solution**: Set `driver.set_page_load_timeout(30)` to avoid excessive wait times. Implemented **automatic retries (up to 2 times)** for failed pages.
+
+**5. Captchas / Blocking Issues**
+
+- **Problem**: Too many requests triggered anti-bot measures.
+- **Solution**: Slowed down requests using `time.sleep(5)`. Used realistic **User-Agent headers** to mimic human behavior.
+
+**6. Handling Promotions & Delivery Methods**
+
+- **Problem**: Some products had missing promotions or delivery details.
+- **Solution**: **Extracted details from the product page** using Selenium. **Ensured empty fields default** to `"N/A"` instead of breaking the script.
+---
+## 7. Sample Output
+  
+- First three outputs
     ```base
     [
         {
@@ -119,8 +141,14 @@ Required Libraries: Add them to **requirements.txt**
             "date_scraped": "2025-03-11T17:33:52.420483"
         }
     ]
-
+---
 ## Final Notes
 
 - This scraper effectively gathers product data while handling missing fields using Selenium.
 - Future improvements could include better CAPTCHA handling and image-based promotional analysis.
+
+## Contributing
+If you want to contribute to this project, please feel free to fork the repository and create a pull request with your changes.
+
+## Contact
+If you have any questions or queries please contact me at **<a href="vileenagoyary02@gmail.com" style="color: blue;">vileenagoyary02@gmail.com</a>**.
