@@ -20,27 +20,27 @@ HEADERS = {
 # Category slugs for constructing JSON request URLs
 CATEGORIES = {
     "Grocery & Bakery": "grocery-bakery",
-    # "Beverages": "beverages",
-    # "Pantry & Ingredients": "pantry-and-ingredients",
-    # "Snacks & Desserts": "snacks-and-desserts",
-    # "Beauty Products and Personal Care": "beauty-personal-care",
-    # "Mom and Baby": "mom-baby",
-    # "Household Essentials": "household-essentials",
-    # "Home and Lifestyle": "home-lifestyle",
-    # "Stationery and Office Supplies": "stationery-and-office-supplies",
-    # "Pet Food and Pet Supplies": "pet-food-and-pet-supplies",
-    # "Home Appliances and Electronics": "home-appliances-electronic-products",
-    # "Fashion and Accessories": "fashion-and-accessories",
-    # "Pure Pharmacy": "pure-pharmacy",
+    "Beverages": "beverages",
+    "Pantry & Ingredients": "pantry-and-ingredients",
+    "Snacks & Desserts": "snacks-and-desserts",
+    "Beauty Products and Personal Care": "beauty-personal-care",
+    "Mom and Baby": "mom-baby",
+    "Household Essentials": "household-essentials",
+    "Home and Lifestyle": "home-lifestyle",
+    "Stationery and Office Supplies": "stationery-and-office-supplies",
+    "Pet Food and Pet Supplies": "pet-food-and-pet-supplies",
+    "Home Appliances and Electronics": "home-appliances-electronic-products",
+    "Fashion and Accessories": "fashion-and-accessories",
+    "Pure Pharmacy": "pure-pharmacy",
 }
 
 def extract_barcode(thumbnail_url):
-    #Extracts the barcode number from the thumbnail URL.
+    """Extracts the barcode number from the thumbnail URL."""
     match = re.search(r'/(\d{12,13})/', thumbnail_url)
     return match.group(1) if match else "N/A"
 
 def setup_driver():
-    #Initialize the Selenium WebDriver.
+    """Initialize the Selenium WebDriver."""
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
@@ -50,16 +50,14 @@ def setup_driver():
     return driver
 
 def scrape_missing_details(product_url, driver, max_retries=2):
-    #Scrape missing details from the product page using Selenium, with detailed logging.
+    """Scrape missing details from the product page using Selenium, with retry logic."""
     for attempt in range(max_retries):
         try:
-            start_time = time.time()
             print(f"[{datetime.now()}] Fetching product details: {product_url} (Attempt {attempt+1}/{max_retries})")
-
-            driver.set_page_load_timeout(30)  # Reduce timeout from 120s to 30s
             driver.get(product_url)
             time.sleep(2)  # Allow time for the page to load
 
+            # Extracting details
             try:
                 description = driver.find_element(By.CSS_SELECTOR, "#pdp_desktop-desc .description_desc__7MwoO").text.strip()
             except:
@@ -94,8 +92,7 @@ def scrape_missing_details(product_url, driver, max_retries=2):
             except:
                 delivery_methods = []
 
-            end_time = time.time()
-            # print(f"[{datetime.now()}] Successfully scraped {name} (Time taken: {round(end_time - start_time, 2)}s)")
+            print(f"[{datetime.now()}] Successfully scraped: {product_url}")
 
             return description, brand, category, price_per_unit, weight_info, delivery_methods
 
@@ -106,34 +103,30 @@ def scrape_missing_details(product_url, driver, max_retries=2):
                 time.sleep(5)
 
     print(f"[{datetime.now()}] Skipping {product_url} after {max_retries} failed attempts")
-    return "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", []
+    return "N/A", "N/A", "N/A", "N/A", "N/A", []
 
 def fetch_products(category_name, category_slug, driver):
-    #Fetch all products from the category, handling pagination with detailed logs.
+    """Fetch all products from the category, handling pagination properly."""
     page = 1
     all_products = []
 
     while True:
-        url = f"{BASE_URL}{category_slug}.json?page={page}"
+        url = f"{BASE_URL}{category_slug}.json"  # ✅ Fixed pagination issue
         print(f"[{datetime.now()}] Fetching {category_name} - Page {page}...")
 
         try:
-            start_time = time.time()
             response = requests.get(url, headers=HEADERS, timeout=10)
-            response_time = round(time.time() - start_time, 2)
-
             if response.status_code != 200:
                 print(f"[{datetime.now()}] Failed to fetch {url} (Status: {response.status_code})")
                 break
 
             data = response.json()
-            products_data = data.get("pageProps", {}).get("productCategory", {}).get("products_summary", {}).get("products", [])
+            products_summary = data.get("pageProps", {}).get("productCategory", {}).get("products_summary", {})
+            products_data = products_summary.get("products", [])
 
             if not products_data:
                 print(f"[{datetime.now()}] No more products found for {category_name} on page {page}.")
                 break
-
-            print(f"[{datetime.now()}]  Fetched {len(products_data)} products (Response time: {response_time}s)")
 
             for product in products_data:
                 thumbnail_url = product.get("thumbnail_image", "N/A")
@@ -160,7 +153,7 @@ def fetch_products(category_name, category_slug, driver):
                     "date_scraped": datetime.now().isoformat()
                 })
 
-            page += 1
+            page += 1  # Move to the next page
             time.sleep(REQUEST_DELAY)
 
         except requests.exceptions.Timeout:
