@@ -20,9 +20,18 @@ HEADERS = {
 # Category slugs for constructing JSON request URLs
 CATEGORIES = {
     "Grocery & Bakery": "grocery-bakery",
-    "Beverages": "beverages",
-    "Pantry & Ingredients": "pantry-and-ingredients",
-    "Snacks & Desserts": "snacks-and-desserts"
+    # "Beverages": "beverages",
+    # "Pantry & Ingredients": "pantry-and-ingredients",
+    # "Snacks & Desserts": "snacks-and-desserts",
+    # "Beauty Products and Personal Care": "beauty-personal-care",
+    # "Mom and Baby": "mom-baby",
+    # "Household Essentials": "household-essentials",
+    # "Home and Lifestyle": "home-lifestyle",
+    # "Stationery and Office Supplies": "stationery-and-office-supplies",
+    # "Pet Food and Pet Supplies": "pet-food-and-pet-supplies",
+    # "Home Appliances and Electronics": "home-appliances-electronic-products",
+    # "Fashion and Accessories": "fashion-and-accessories",
+    # "Pure Pharmacy": "pure-pharmacy",
 }
 
 def extract_barcode(thumbnail_url):
@@ -50,11 +59,6 @@ def scrape_missing_details(product_url, driver, max_retries=2):
             driver.set_page_load_timeout(30)  # Reduce timeout from 120s to 30s
             driver.get(product_url)
             time.sleep(2)  # Allow time for the page to load
-
-            try:
-                name = driver.find_element(By.CSS_SELECTOR, "h1#pdp_product-title").text.strip()
-            except:
-                name = "N/A"
 
             try:
                 description = driver.find_element(By.CSS_SELECTOR, "#pdp_desktop-desc .description_desc__7MwoO").text.strip()
@@ -91,9 +95,9 @@ def scrape_missing_details(product_url, driver, max_retries=2):
                 delivery_methods = []
 
             end_time = time.time()
-            print(f"[{datetime.now()}] Successfully scraped {name} (Time taken: {round(end_time - start_time, 2)}s)")
+            # print(f"[{datetime.now()}] Successfully scraped {name} (Time taken: {round(end_time - start_time, 2)}s)")
 
-            return name, description, brand, category, price_per_unit, weight_info, delivery_methods
+            return description, brand, category, price_per_unit, weight_info, delivery_methods
 
         except Exception as e:
             print(f"[{datetime.now()}] Error scraping {product_url}: {str(e)}")
@@ -137,10 +141,10 @@ def fetch_products(category_name, category_slug, driver):
                 product_url = f'https://www.bigc.co.th/en/product/{product.get("slug", "")}'
 
                 print(f"[{datetime.now()}]  Scraping: {product_url}")
-                name, description, brand, category, price_per_unit, weight_info, delivery_methods = scrape_missing_details(product_url, driver)
+                description, brand, category, price_per_unit, weight_info, delivery_methods = scrape_missing_details(product_url, driver)
 
                 all_products.append({
-                    "name": name,
+                    "name": product.get("name", "N/A"),
                     "price": product.get("final_price_incl_tax", "N/A"),
                     "price_per_unit": price_per_unit,
                     "weight_info": weight_info,
