@@ -20,8 +20,8 @@
 - **Used a realistic User-Agent header** to mimic human browsing.  
 ---
 ## 2. Total Product Count
-- Total products listed on the website: 
-- Total products successfully scraped: 390
+- Total products listed on the website: NA
+- Total products successfully scraped: (needs to be updated)
 ---
 ## 3️. Duplicate Handling Logic  
  **Prevents scraping the same product twice:**  
