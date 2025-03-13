@@ -19,18 +19,18 @@ HEADERS = {
 
 # Category slugs for constructing JSON request URLs
 CATEGORIES = {
-    "Grocery & Bakery": "grocery-bakery",
-    "Beverages": "beverages",
-    "Pantry & Ingredients": "pantry-and-ingredients",
-    "Snacks & Desserts": "snacks-and-desserts",
-    "Beauty Products and Personal Care": "beauty-personal-care",
-    "Mom and Baby": "mom-baby",
-    "Household Essentials": "household-essentials",
-    "Home and Lifestyle": "home-lifestyle",
-    "Stationery and Office Supplies": "stationery-and-office-supplies",
-    "Pet Food and Pet Supplies": "pet-food-and-pet-supplies",
-    "Home Appliances and Electronics": "home-appliances-electronic-products",
-    "Fashion and Accessories": "fashion-and-accessories",
+    # "Grocery & Bakery": "grocery-bakery",
+    # "Beverages": "beverages",
+    # "Pantry & Ingredients": "pantry-and-ingredients",
+    # "Snacks & Desserts": "snacks-and-desserts",
+    # "Beauty Products and Personal Care": "beauty-personal-care",
+    # "Mom and Baby": "mom-baby",
+    # "Household Essentials": "household-essentials",
+    # "Home and Lifestyle": "home-lifestyle",
+    # "Stationery and Office Supplies": "stationery-and-office-supplies",
+    # "Pet Food and Pet Supplies": "pet-food-and-pet-supplies",
+    # "Home Appliances and Electronics": "home-appliances-electronic-products",
+    # "Fashion and Accessories": "fashion-and-accessories",
     "Pure Pharmacy": "pure-pharmacy",
 }
 
@@ -107,7 +107,7 @@ def scrape_missing_details(product_url, driver, max_retries=2):
 
 def fetch_products(category_name, category_slug, driver):
     """Fetch all products from the category, handling pagination properly."""
-    page = 1
+    page = 244
     all_products = []
 
     while True:
